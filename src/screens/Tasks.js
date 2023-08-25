@@ -23,8 +23,14 @@ import ItemView from '../components/ItemView';
 import {useDispatch, useSelector} from 'react-redux';
 import {addNewTask, deleleTask, updateTask} from '../redux/Actions';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
+import {doc, setDoc} from 'firebase/firestore';
+import {db, app} from '../firebase';
+import {getAuth} from '@firebase/auth';
 
 const Tasks = props => {
+  const auth = getAuth(app);
+  const userEmail = auth.currentUser.email;
+  // console.log("User: "+ JSON.stringify(user))
   // Getting data from store
   const dataFromStore = useSelector(state => state.taskReducer); //Syntax for this hook => useSelector(state => state.myReducer);
 
@@ -44,9 +50,9 @@ const Tasks = props => {
 
   console.log(`Data: ${dataFromStore}`);
 
-  useEffect(()=> {
-    console.log('Task UI')
-  }, [dataFromStore])
+  useEffect(() => {
+    console.log('Task UI');
+  }, [dataFromStore]);
   const addTask = async () => {
     Keyboard.dismiss();
     console.log(`Task => ${task}`);
@@ -61,6 +67,12 @@ const Tasks = props => {
         archive: false,
         dueDate: selected,
       };
+      // Add a new document in collection "cities"
+      await setDoc(doc(db, userEmail, task), {
+        obj
+      });
+      console.log('Firebase upload complete');
+
       dispatch(addNewTask(obj));
     } else {
       alert('Please enter a task');
@@ -73,11 +85,6 @@ const Tasks = props => {
     console.log(index);
     dispatch(deleleTask(index));
   };
-
-  // const startUpdate = (id, task) => {
-  //   dispatch(updateTask(currentId, currentTask));
-  //   setShow(false);
-  // };
 
   const handleUpdateTask = (item, index) => {
     props.navigation.navigate('EditTask', {index, item});
@@ -131,7 +138,6 @@ const Tasks = props => {
                 borderColor: 'gray',
                 height: 350,
               }}
-              
               markedDates={{
                 [selected]: {
                   selected: true,

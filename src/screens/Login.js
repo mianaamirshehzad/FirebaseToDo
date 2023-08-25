@@ -1,18 +1,50 @@
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import {
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import GlobalStyles from '../styles/GlobalStyles';
 import CustomButton from '../components/CustomButton';
-// import auth from '@react-native-firebase/auth';
 import CustomInput from '../components/CustomInput';
+import app from '../firebase';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 
-const Login = (props) => {
+const Login = props => {
+  const auth = getAuth(app);
 
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const loginWithEmail = () => {
-    Alert.alert("pressed")
+    try {
+      signInWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+          // Signed in
+          const user = userCredential.user;
+          console.log('Login success!');
+          props.navigation.navigate('Home');
+        })
+        .catch(error => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+        });
+    } catch (error) {
+      console.log(error);
+    }
+    setEmail(null);
+    setPassword(null);
   };
   return (
     <View style={GlobalStyles.globalContainer}>
@@ -34,28 +66,33 @@ const Login = (props) => {
       />
       {/* <View  style={styles.container} > */}
       <Text style={GlobalStyles.title}>Welcome back</Text>
-      <CustomInput placeholder="Email" />
-      <CustomInput placeholder="Password" />
-      <TouchableOpacity style={styles.forgot} onPress={() => props.navigation.navigate('Forgot')} >
-        <Text>
-          Forgot Password?
-        </Text>
-      </TouchableOpacity>
-      <CustomButton
-        name="Login"
-        onPress={() => props.navigation.navigate('Home')}
+      <CustomInput
+        placeholder="Email"
+        onChangeText={text => setEmail(text)}
+        value={email}
       />
-      <View style={{ flexDirection: 'row', padding: 15 }}>
+      <CustomInput
+        placeholder="Password"
+        onChangeText={text => setPassword(text)}
+        value={password}
+        secureTextEntry={true}
+      />
+      <TouchableOpacity
+        style={styles.forgot}
+        onPress={() => props.navigation.navigate('Forgot')}>
+        <Text>Forgot Password?</Text>
+      </TouchableOpacity>
+      <CustomButton name="Login" onPress={() => loginWithEmail()} />
+      <View style={{flexDirection: 'row', padding: 15}}>
         <Text>Don't have an account? </Text>
-        <TouchableOpacity onPress={() => props.navigation.navigate('Signup')} >
+        <TouchableOpacity onPress={() => props.navigation.navigate('Signup')}>
           <Text style={styles.boldText}>Sign up</Text>
         </TouchableOpacity>
       </View>
       {/* </View> */}
-
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

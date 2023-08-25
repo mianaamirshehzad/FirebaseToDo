@@ -1,16 +1,22 @@
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import {
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import GlobalStyles from '../styles/GlobalStyles';
 import CustomButton from '../components/CustomButton';
 import CustomInput from '../components/CustomInput';
-// import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-// import app from '../firebase';
-// import auth from '@react-native-firebase/auth';
+import {getAuth, createUserWithEmailAndPassword} from 'firebase/auth';
+import app from '../firebase';
 
+const Signup = props => {
+  const auth = getAuth(app);
 
-const Signup = (props) => {
-
-  // const auth = getAuth(app);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,34 +25,32 @@ const Signup = (props) => {
   const [user, setUser] = useState();
 
   const creatingUser = () => {
-    // auth()
-    //   .createUserWithEmailAndPassword('jane.doe@example.com', 'SuperSecretPassword!')
-    //   .then(() => {
-    //     console.log('User account created & signed in!');
-    //   })
-    //   .catch(error => {
-    //     if (error.code === 'auth/email-already-in-use') {
-    //       console.log('That email address is already in use!');
-    //     }
-
-    //     if (error.code === 'auth/invalid-email') {
-    //       console.log('That email address is invalid!');
-    //     }
-    //     console.error(error);
-    //   });
+    try {
+      if (password === confirmPass) {
+        createUserWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+          // Signed in
+          const user = userCredential.user;
+          console.log('Signup success!');
+          props.navigation.navigate('Home')
+        })
+        .catch(error => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // ..
+        });
+      } else {
+        Alert.alert('Password do not match')
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setConfirmPass(null);
+    setPassword(null);
+    setEmail(null);
+    setName(null);
   };
 
-  // function onAuthStateChanged(user) {
-  //   setUser(user);
-  //   if (initializing) setInitializing(false);
-  // }
-
-  // useEffect(() => {
-  //   const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-  //   return subscriber; // unsubscribe on unmount
-  // }, []);
-
-  // if (initializing) return null;
 
   return (
     <View style={GlobalStyles.globalContainer}>
@@ -68,34 +72,35 @@ const Signup = (props) => {
       />
       {/* <View  style={styles.container} > */}
       <Text style={GlobalStyles.title}>Fill up and register your account</Text>
+      <CustomInput 
+      value = {name}
+      placeholder="Name" onChangeText={text => setName(text)} />
+      <CustomInput 
+      onChangeText={text => setEmail(text)} placeholder="Email"
+      value = {email}/>
       <CustomInput
-        placeholder="Name"
-        onChangeText={(text) => setName(text)} />
-      <CustomInput
-        onChangeText={(text) => setEmail(text)}
-        placeholder="Email" />
-      <CustomInput
-        onChangeText={(text) => setPassword(text)}
+        onChangeText={text => setPassword(text)}
         placeholder="Password"
-        secureTextEntry={true} />
+        secureTextEntry={true}
+        value = {password}
+      />
       <CustomInput
-        onChangeText={(text) => setConfirmPass(text)}
+        onChangeText={text => setConfirmPass(text)}
         placeholder="Confirm Password"
-        secureTextEntry={true} />
-      <CustomButton
-        name="Register Now"
-        onPress={() => creatingUser()} />
-      <View style={{ flexDirection: 'row', padding: 15 }}>
+        secureTextEntry={true}
+        value = {confirmPass}
+      />
+      <CustomButton name="Register Now" onPress={() => creatingUser()} />
+      <View style={{flexDirection: 'row', padding: 15}}>
         <Text>Already have an account? </Text>
-        <TouchableOpacity onPress={() => props.navigation.navigate("Login")} >
+        <TouchableOpacity onPress={() => props.navigation.navigate('Login')}>
           <Text style={styles.boldText}>Login</Text>
         </TouchableOpacity>
       </View>
       {/* </View> */}
-
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

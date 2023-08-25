@@ -7,8 +7,8 @@ export default function CustomInput(props) {
       placeholder={props.placeholder}
       style={styles.input}
       secureTextEntry={props.secureTextEntry}
-      onChangeText={(t) => props.onChangeText(t)}
       value = {props.value}
+      onChangeText={props.onChangeText}
     />
   )
 };
