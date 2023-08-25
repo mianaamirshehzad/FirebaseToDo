@@ -23,7 +23,8 @@ const Home = (props) => {
                 source = {require('../assets/images/star.png')} />
             <CustomView
                 name="Tasks"
-                source = {require('../assets/images/clipboard.png')} />
+                source = {require('../assets/images/clipboard.png')}
+                onPress = {() => props.navigation.navigate('Tasks')} />
 
             <View style={styles.cornerbottom}>
                 <Image

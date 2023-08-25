@@ -7,11 +7,13 @@ import {
   TextInput,
   StyleSheet,
   Text,
-  TouchableOpacity,
   Modal,
+  TouchableOpacity,
   View,
+  Switch,
   FlatList,
 } from 'react-native';
+import {Calendar, LocaleConfig} from 'react-native-calendars';
 import React, {useState, useEffect} from 'react';
 import GlobalStyles from '../styles/GlobalStyles';
 import CustomButton from '../components/CustomButton';
@@ -22,85 +24,55 @@ import Task from '../components/Task';
 import ItemView from '../components/ItemView';
 import {useDispatch, useSelector} from 'react-redux';
 import {addNewTask, deleleTask, updateTask} from '../redux/Actions';
-import {Calendar, LocaleConfig} from 'react-native-calendars';
 
-const Tasks = props => {
-  // Getting data from store
-  const dataFromStore = useSelector(state => state.taskReducer); //Syntax for this hook => useSelector(state => state.myReducer);
+const EditTask = props => {
+  console.log('EditScreen' + JSON.stringify(props));
+  const {task, dueDate} = props.route.params.item;
+  const { index } = props.route.params;
 
-  const [task, setTask] = useState();
-  const [allTasks, setAllTasks] = useState([]);
-  const [editTask, setEditTask] = useState('');
-  const [beingEdit, setBeingEdit] = useState(false);
-  const [show, setShow] = useState(false);
-  const [currentId, setCurrentId] = useState('');
-  const [currentTask, setCurrentTask] = useState('');
-  const [seletedItem, setSelectedItem] = useState('');
-  const [lineThrough, setlineThrough] = useState(false);
-  const [selected, setSelected] = useState('');
+  console.log(index);
+
+  const [isFavouriteEnabled, setIsFavouriteEnables] = useState(false);
+  const [isArchivedEnabled, setIsArchivedEnabled] = useState(false);
+  const [editTask, setEditTask] = useState(task);
+  const [selected, setSelected] = useState(dueDate);
   const [calenderShow, setCalenderShow] = useState(false);
 
   const dispatch = useDispatch();
-
-  console.log(`Data: ${dataFromStore}`);
-
-  useEffect(()=> {
-    console.log('Task UI')
-  }, [dataFromStore])
-  const addTask = async () => {
-    Keyboard.dismiss();
-    console.log(`Task => ${task}`);
-    if (task) {
-      let date = new Date();
-      let time = date.getTime();
-      let obj = {
-        id: time,
-        task: task,
-        isDone: false,
-        favourite: false,
-        archive: false,
-        dueDate: selected,
-      };
-      dispatch(addNewTask(obj));
-    } else {
-      alert('Please enter a task');
-    }
-    setTask(null); //This will empty the textbox
-  };
-  console.log(allTasks);
-
-  const handleDeleteTask = index => {
-    console.log(index);
-    dispatch(deleleTask(index));
-  };
-
-  // const startUpdate = (id, task) => {
-  //   dispatch(updateTask(currentId, currentTask));
-  //   setShow(false);
-  // };
-
-  const handleUpdateTask = (item, index) => {
-    props.navigation.navigate('EditTask', {index, item});
-  };
-
-  const markAsDone = index => {
-    useDispatch(completeTask(index));
-  };
 
   const selectDate = day => {
     setSelected(day.dateString);
     setCalenderShow(false);
   };
-  const currentDate = () => {
-    const date = new Date();
-    let day = date.getDate();
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
-    let currentDate = `${day}-${month}-${year}`;
-    console.log(`Current Date: ${currentDate}`); // "17-6-2022"
-  };
-  console.log(`selected ${selected}`);
 
+  const toggleFavourite = () => {
+    if (isArchivedEnabled == true) {
+      alert('Make task un-archived first');
+    } else {
+      setIsFavouriteEnables(previousState => !previousState);
+    }
+  };
+  const toggleArchived = () => {
+    if (isFavouriteEnabled == true) {
+      alert('Favourite task cannot be archived');
+    } else {
+      setIsArchivedEnabled(previousState => !previousState);
+    }
+  };
+
+  const handleUpdateTask = () => {
+    const editObj = {
+      editTask,
+      selected,
+      isFavouriteEnabled,
+      isArchivedEnabled,
+      index: index
+    }
+    // console.log(JSON.stringify(editObj))
+    dispatch(updateTask(editObj));
+    setEditTask(null);
+    props.navigation.navigate('Tasks')
+  };
   return (
     <View style={GlobalStyles.globalContainer}>
       <View style={styles.cornerTop}>
@@ -115,7 +87,38 @@ const Tasks = props => {
           style={styles.corner}
         />
       </View>
-      <Text style={styles.title}>Today's Tasks</Text>
+      <Text style={styles.title}>Edit Tasks</Text>
+      <CustomInput value={editTask} onChangeText={text => setEditTask(text)} />
+      <View style={{flexDirection: 'row', padding: 10}}>
+        <TouchableOpacity onPress={() => setCalenderShow(true)}>
+          <Image
+            source={require('../assets/images/calender.png')}
+            style={styles.calender}
+          />
+        </TouchableOpacity>
+        <Text style={{marginLeft: 20, alignSelf: 'center'}}>{selected}</Text>
+      </View>
+      <View style={{flexDirection: 'row', padding: 10}}>
+        <Text>Make task favourite?</Text>
+        <Switch
+          trackColor={{false: '#767577', true: '#81b0ff'}}
+          thumbColor={isFavouriteEnabled ? '#f5dd4b' : '#f4f3f4'}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={toggleFavourite}
+          value={isFavouriteEnabled}
+        />
+      </View>
+      <View style={{flexDirection: 'row', padding: 10}}>
+        <Text>Make task archived?</Text>
+        <Switch
+          trackColor={{false: '#767577', true: '#81b0ff'}}
+          thumbColor={isArchivedEnabled ? '#f5dd4b' : '#f4f3f4'}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={toggleArchived}
+          value={isArchivedEnabled}
+        />
+      </View>
+
       {calenderShow === true ? (
         <Modal animationType="slide" transparent={true} visible={calenderShow}>
           <View
@@ -131,7 +134,6 @@ const Tasks = props => {
                 borderColor: 'gray',
                 height: 350,
               }}
-              
               markedDates={{
                 [selected]: {
                   selected: true,
@@ -143,42 +145,7 @@ const Tasks = props => {
           </View>
         </Modal>
       ) : null}
-      <ScrollView style={styles.item}>
-        {dataFromStore.map((item, index) => (
-          <Task
-            text={item.task}
-            key={item.id}
-            onDelete={() => handleDeleteTask(index)}
-            onPress={() => handleUpdateTask(item, index)}
-            // onEdit={() => handleUpdateTask(index)}
-            onCompletePress={() => markAsDone(index)}
-            style={styles.strike}
-          />
-        ))}
-      </ScrollView>
-
-      {/* Write a New Task Section */}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.writeTastWrapper}>
-        <TouchableOpacity onPress={() => setCalenderShow(true)}>
-          <Image
-            source={require('../assets/images/calender.png')}
-            style={styles.calender}
-          />
-        </TouchableOpacity>
-        <TextInput
-          placeholder="Write your task"
-          onChangeText={text => setTask(text)}
-          value={task}
-          style={styles.input}
-        />
-        <TouchableOpacity onPress={() => addTask()}>
-          <View style={styles.addWrapper}>
-            <Text style={styles.addText}>+</Text>
-          </View>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
+      <CustomButton name="Update" onPress={() => handleUpdateTask()} />
     </View>
   );
 };
@@ -271,14 +238,11 @@ const styles = StyleSheet.create({
     width: '95%',
     alignSelf: 'center',
   },
-  strike: {
-    textDecorationLine: 'line-through',
-  },
   calender: {
     width: 50,
     height: 50,
-    padding: 10,
+    marginRight: 20,
   },
 });
 
-export default Tasks;
+export default EditTask;

@@ -43,7 +43,7 @@ const Login = (props) => {
       </TouchableOpacity>
       <CustomButton
         name="Login"
-        onPress={() => loginWithEmail()}
+        onPress={() => props.navigation.navigate('Home')}
       />
       <View style={{ flexDirection: 'row', padding: 15 }}>
         <Text>Don't have an account? </Text>

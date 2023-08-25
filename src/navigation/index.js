@@ -6,6 +6,8 @@ import Signup from '../screens/Signup';
 import Forgot from '../screens/Forgot';
 import Home from '../screens/Home';
 import FavouriteTasks from '../screens/FavouriteTasks';
+import EditTask from '../screens/EditTask';
+import Tasks from '../screens/Tasks';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,8 +36,18 @@ const MyStack = () => {
           options={{headerShown: false}}
         />
         <Stack.Screen
+          name="Tasks"
+          component={Tasks}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
           name="FavouriteTasks"
           component={FavouriteTasks}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="EditTask"
+          component={EditTask}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

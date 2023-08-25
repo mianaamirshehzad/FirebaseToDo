@@ -1,4 +1,4 @@
-import { ADD_NEW_TASK, DELETE_ALL, DELETE_TASK, UPDATE_TASK } from "./Constants";
+import { ADD_NEW_TASK, DELETE_ALL, DELETE_TASK, UPDATE_TASK, MARK_COMPLETE } from "./Constants";
 
 
 export const addNewTask = (payload) => {
@@ -21,9 +21,16 @@ export const deleleTask = (id)=> {
   }
 };
 
-export const updateTask = (id, editedTask) => {
+export const updateTask = (payload) => {
   return {
     type: UPDATE_TASK,
-    payload: {id, editedTask}
+    payload
+  }
+}
+
+export const markComplete = (id) => {
+  return {
+    type: MARK_COMPLETE,
+    payload: id
   }
 }

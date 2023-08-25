@@ -4,13 +4,17 @@ import { Provider } from "react-redux";
 import store from './src/redux/Store';
 import Tasks from './src/screens/Tasks';
 import FavouriteTasks from './src/screens/FavouriteTasks';
+import MyStack from './src/navigation';
 
 
 export default function App() {
 
   return (
     <Provider store={store}>
-      <FavouriteTasks /> 
+      {/* <FavouriteTasks />  */}
+      {/* <Tasks /> */}
+      <MyStack />
+      
     </Provider>
 
   );
