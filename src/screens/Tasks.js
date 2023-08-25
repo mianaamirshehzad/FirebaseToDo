@@ -71,7 +71,7 @@ const Tasks = props => {
       await setDoc(doc(db, userEmail, task), {
         obj
       });
-      console.log('Firebase upload complete');
+      console.log('Firebase upload complete Now the redux');
 
       dispatch(addNewTask(obj));
     } else {
